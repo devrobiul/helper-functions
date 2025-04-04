@@ -29,3 +29,53 @@ if (! function_exists('setting')) :
         return $return;
     }
 endif;
+
+    public function settingStore(Request $request)
+    {
+        $data = $request->all();
+        unset($data['_token']);
+
+        foreach ($data as $key => $value) {
+            if ($request->hasFile($key)) {
+                $value = uploadFile($request->file($key));
+            }
+            $this->optionAdd($key, $value);
+        }
+
+        session()->flash('success', 'Data updated successfully!');
+        return back();
+    }
+
+
+
+    protected function optionAdd($key, $value)
+    {
+        $option = Setting::where('name', $key)->get();
+        $option = $option[0] ?? null;
+        if ($option) {
+            $id = $option->id;
+            $exists_value = $option->value;
+            if ($exists_value != $value) {
+                $this->optionUpdate($id, $value);
+            }
+        } else {
+            Setting::create([
+                'name' => $key,
+                'value' => $value
+            ]);
+        }
+    }
+    protected function optionUpdate($id, $value)
+    {
+        $setting = Setting::find($id);
+
+        if ($setting) {
+            $oldValue = $setting->value;
+            if ($oldValue && file_exists(public_path($oldValue))) {
+                unlink(public_path($oldValue));
+            }
+
+            $setting->update(['value' => $value]);
+        }
+
+    }
