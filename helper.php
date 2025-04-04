@@ -1,5 +1,5 @@
 <?php
-
+/***uploadfile */
 if (!function_exists('uploadFile')) {
     function uploadFile($file, $path = 'frontend/upload/files')
     {
@@ -12,6 +12,8 @@ if (!function_exists('uploadFile')) {
         return null;
     }
 }
+
+/***setting function */
 if (! function_exists('setting')) :
     function setting($name, $default = null, $callback = null)
     {
@@ -29,7 +31,22 @@ if (! function_exists('setting')) :
         return $return;
     }
 endif;
+ /*** currency format */
+    function formatIndianCurrency($num) {
+        $num = (int) $num; 
+        $num = (string) $num;
+        $len = strlen($num);
+        if ($len > 3) {
+            $lastThree = substr($num, -3);
+            $rest = substr($num, 0, $len - 3);
+            $rest = preg_replace("/\B(?=(\d{2})+(?!\d))/", ",", $rest);
+            $num = $rest . ',' . $lastThree;
+        }
+        return $num;
+    }
 
+
+    /***setting data store function */
     public function settingStore(Request $request)
     {
         $data = $request->all();
